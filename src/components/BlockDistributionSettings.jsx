@@ -105,7 +105,7 @@ import {
         <Divider />
   
         <div>
-          <FormGroup label={<strong>Tag</strong>} labelFor="tag">
+          <FormGroup label={<strong>Tag To Watch</strong>} labelFor="tag">
             <PageInput
               id="tag"
               placeholder="Enter tag"
@@ -116,7 +116,7 @@ import {
             />
           </FormGroup>
   
-          <FormGroup label={<strong>Destination</strong>} labelFor="destType">
+          <FormGroup label={<strong>Destination Type</strong>} labelFor="destType">
             <Popover
               content={
                 <Menu>
