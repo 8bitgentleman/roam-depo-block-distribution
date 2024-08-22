@@ -1,9 +1,10 @@
 import pkg from "../package.json";
-import IntervalSettings from "./components/BlockDistributionSettings";
+import BlockDistributionSettings from "./components/BlockDistributionSettings";
 
 async function onload({ extensionAPI }) {
   // set defaults if they dont' exist
-  const wrappedIntervalConfig = () => IntervalSettings({ extensionAPI });
+  const wrappedBlockDistribution = () =>
+    BlockDistributionSettings({ extensionAPI });
 
   extensionAPI.settings.panel.create({
     tabTitle: `${pkg.name}`,
@@ -25,7 +26,7 @@ async function onload({ extensionAPI }) {
         name: "Block Distribution Settings",
         description: "Manage rules for automatic block distribution",
         // className: "crm-reminders-interval-setting",
-        action: { type: "reactComponent", component: wrappedIntervalConfig },
+        action: { type: "reactComponent", component: wrappedBlockDistribution },
       },
     ],
   });
