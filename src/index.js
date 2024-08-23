@@ -1,8 +1,15 @@
 import pkg from "../package.json";
 import BlockDistributionSettings from "./components/BlockDistributionSettings";
+import { createPullWatch, removePullWatch } from "./utils";
+
+let pullWatches = {};
+
+const handlePullWatch = (rule) => (before, after) => {
+  console.log(`Pull watch triggered for ${rule.tag}:`, before, after);
+  // Implement your block distribution logic here
+};
 
 async function onload({ extensionAPI }) {
-  // set defaults if they dont' exist
   const wrappedBlockDistribution = () =>
     BlockDistributionSettings({ extensionAPI });
 
@@ -25,16 +32,30 @@ async function onload({ extensionAPI }) {
         id: "block-distribution-settings",
         name: "Block Distribution Settings",
         description: "Manage rules for automatic block distribution",
-        // className: "crm-reminders-interval-setting",
         action: { type: "reactComponent", component: wrappedBlockDistribution },
       },
     ],
   });
 
+  // Add pull watches for existing rules
+  const existingRules = await extensionAPI.settings.get("blockDistributionRules") || [];
+  for (const rule of existingRules) {
+    const callback = await createPullWatch(rule, handlePullWatch(rule));
+    if (callback) {
+      pullWatches[rule.tag] = { rule, callback };
+    }
+  }
+
   console.log(`Loaded ${pkg.name} v${pkg.version}`);
 }
 
-function onunload() {
+async function onunload() {
+  // Remove all pull watches
+  for (const [tag, { rule, callback }] of Object.entries(pullWatches)) {
+    await removePullWatch(rule, callback);
+  }
+  pullWatches = {};
+
   console.log(`Unloaded ${pkg.name}`);
 }
 
