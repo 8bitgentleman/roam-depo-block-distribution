@@ -132,7 +132,11 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
   }, []);
 
   const handleBlockUidChange = useCallback((event) => {
-    const value = event.target.value;
+    let value = event.target.value;
+    // Remove surrounding parentheses if they exist
+    if (value.startsWith('((') && value.endsWith('))')) {
+      value = value.slice(2, -2);
+    }
     setNewRule((prevNewRule) => ({
       ...prevNewRule,
       destValue: value,
@@ -159,10 +163,10 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
             }}
           >
             <div>
-              <strong>Tag:</strong> {rule.tag} (UID: {rule.tagUid || "N/A"})
+              <strong>Tag:</strong> {rule.tag}  {/*(UID: {rule.tagUid || "N/A"}) */}
               <br />
               <strong>Destination:</strong>{" "}
-              {rule.destType === "blockSearch" ? "Block" : rule.destType === "page" ? "Page" : "Block UID"} - {rule.destString} (UID: {rule.destUid || "N/A"})
+              {rule.destType === "blockSearch" ? "Block" : rule.destType === "page" ? "Page" : "Block UID"} - {rule.destString}{/*  (UID: {rule.destUid || "N/A"}) */}
             </div>
             <Button icon="trash" minimal onClick={() => deleteRule(index)} />
           </div>
@@ -213,31 +217,31 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
         </FormGroup>
 
         <FormGroup label={<strong>Destination Value</strong>} labelFor="destValue">
-          {newRule.destType === "blockSearch" && (
-            <BlockInput
-              value={newRule.destValue || ""}
-              setValue={handleDestValueChange}
-            />
-          )}
-          {newRule.destType === "page" && (
-            <PageInput
-              id="destValue"
-              placeholder="Enter Page Name"
-              value={newRule.destValue || ""}
-              setValue={handlePageValueChange}
-              showButton={false}
-              multiline={false}
-            />
-          )}
-          {newRule.destType === "blockUid" && (
-            <InputGroup
-              id="destValue"
-              placeholder="Enter Block UID"
-              value={newRule.destValue || ""}
-              onChange={handleBlockUidChange}
-            />
-          )}
-        </FormGroup>
+        {newRule.destType === "blockSearch" && (
+          <BlockInput
+            value={newRule.destValue || ""}
+            setValue={handleDestValueChange}
+          />
+        )}
+        {newRule.destType === "page" && (
+          <PageInput
+            id="destValue"
+            placeholder="Enter Page Name"
+            value={newRule.destValue || ""}
+            setValue={handlePageValueChange}
+            showButton={false}
+            multiline={false}
+          />
+        )}
+        {newRule.destType === "blockUid" && (
+          <InputGroup
+            id="destValue"
+            placeholder="Enter Block UID"
+            value={newRule.destValue || ""}
+            onChange={handleBlockUidChange}
+          />
+        )}
+      </FormGroup>
 
         <Button onClick={addRule} intent="primary">
           Add Rule
