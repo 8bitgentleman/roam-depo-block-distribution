@@ -1,11 +1,16 @@
 import pkg from "../package.json";
 import BlockDistributionSettings from "./components/BlockDistributionSettings";
-import { generatePullWatchParams } from "./utils";
+import { 
+  generatePullWatchParams,
+  removeTagFromBlock,
+  compareObjects } from "./utils";
 
 let pullWatches = {};
 
 const handlePullWatch = (rule) => (before, after) => {
   console.log(`[PullWatch] Triggered for ${rule.tag}:`, before, after);
+  // console.log("compair", compareObjects(before, after));
+  
   // Implement your block distribution logic here
 };
 
@@ -31,7 +36,6 @@ async function onload({ extensionAPI }) {
   extensionAPI.settings.panel.create({
     tabTitle: `${pkg.name}`,
     settings: [
-      // ... (other settings remain the same)
       {
         id: "block-distribution-settings",
         name: "Block Distribution Settings",
@@ -43,6 +47,9 @@ async function onload({ extensionAPI }) {
 
   // Load initial rules and set up pull watches
   const existingRules = await extensionAPI.settings.get("blockDistributionRules") || [];
+
+  console.log("existingRules",existingRules);
+  
   for (const rule of existingRules) {
     await addPullWatch(rule);
   }
@@ -51,10 +58,8 @@ async function onload({ extensionAPI }) {
 }
 
 async function onunload() {
-  console.log(`[onunload] Starting unload process`);
   // Remove all pull watches
   for (const [tag, { rule }] of Object.entries(pullWatches)) {
-    console.log(`[onunload] Removing pull watch for ${tag}`);
     await removePullWatch(rule);
   }
   pullWatches = {};
