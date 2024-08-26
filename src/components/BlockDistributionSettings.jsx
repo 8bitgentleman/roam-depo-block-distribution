@@ -172,7 +172,7 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
           </div>
         ))}
       </div>
-
+        <hr></hr>
       <Divider />
 
       <div>
