@@ -1,10 +1,8 @@
-Template for Roam Depot Plugins
-Roam Research extension template
+(DEV) Roam Depot Block Distribution 
 
-## Setup
 
-## Usage
+### Usage
 
-## Example
+### Example
 
-<img src="LINK_TO_IMAGE" max-width="400"></img>
+<!-- <img src="LINK_TO_IMAGE" max-width="400"></img> -->

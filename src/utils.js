@@ -22,11 +22,11 @@ export function removeTagFromBlock(blockString, tag) {
 }
 
 export function compareObjects(before, after) {
-  const beforeRefs = before[":block/_refs"];
-  const afterRefs = after[":block/_refs"];
+  const beforeRefs = before[":block/_refs"] || [];
+  const afterRefs = after[":block/_refs"] || [];
   
-  const added = afterRefs.filter(a => !beforeRefs.some(b => b[":block/uid"] === a[":block/uid"]));
-  const removed = beforeRefs.filter(b => !afterRefs.some(a => a[":block/uid"] === b[":block/uid"]));
+  const added = afterRefs.filter(a => !beforeRefs.some(b => b && b[":block/uid"] === a[":block/uid"]));
+  const removed = beforeRefs.filter(b => b && !afterRefs.some(a => a[":block/uid"] === b[":block/uid"]));
   
   return {
     added,

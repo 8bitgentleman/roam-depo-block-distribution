@@ -7,11 +7,56 @@ import {
 
 let pullWatches = {};
 
-const handlePullWatch = (rule) => (before, after) => {
+const handlePullWatch = (rule) => async (before, after) => {
   console.log(`[PullWatch] Triggered for ${rule.tag}:`, before, after);
-  // console.log("compair", compareObjects(before, after));
-  
-  // Implement your block distribution logic here
+  console.log("rule", rule);
+
+  if (!before || !after) {
+    console.error('[PullWatch] Invalid before or after data:', { before, after });
+    return;
+  }
+
+  let changes;
+  try {
+    changes = compareObjects(before, after);
+    console.log("Changes:", changes);
+  } catch (error) {
+    console.error('[PullWatch] Error in compareObjects:', error);
+    return;
+  }
+
+  if (changes.added && changes.added.length > 0) {
+    // There's at least one new block added
+    const newBlock = changes.added[0]; // We'll process the first new block
+
+    if (!newBlock || !newBlock[':block/uid']) {
+      console.error('[PullWatch] Invalid new block:', newBlock);
+      return;
+    }
+
+    try {
+      // Create the new block
+      await window.roamAlphaAPI.createBlock({
+        location: { "parent-uid": rule.destUid, order: 'last' },
+        block: { string: `((${newBlock[':block/uid']}))` },
+      });
+
+      // Update the original block to remove the tag
+      let blockString = removeTagFromBlock(newBlock[':block/string'], rule.tag);
+      await window.roamAlphaAPI.updateBlock({
+        block: {
+          uid: newBlock[':block/uid'],
+          string: blockString,
+        },
+      });
+
+      console.log(`[PullWatch] Successfully processed new block: ${newBlock[':block/uid']}`);
+    } catch (error) {
+      console.error('[PullWatch] Error in processing new block:', error);
+    }
+  } else {
+    console.log('[PullWatch] No new blocks added, no action taken');
+  }
 };
 
 const addPullWatch = async (rule) => {

@@ -159,10 +159,10 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
             }}
           >
             <div>
-              <strong>Tag:</strong> {rule.tag}
+              <strong>Tag:</strong> {rule.tag} (UID: {rule.tagUid || "N/A"})
               <br />
               <strong>Destination:</strong>{" "}
-              {rule.destType === "blockSearch" ? "Block" : rule.destType === "page" ? "Page" : "Block UID"} - {rule.destString}
+              {rule.destType === "blockSearch" ? "Block" : rule.destType === "page" ? "Page" : "Block UID"} - {rule.destString} (UID: {rule.destUid || "N/A"})
             </div>
             <Button icon="trash" minimal onClick={() => deleteRule(index)} />
           </div>
