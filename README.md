@@ -2,7 +2,7 @@ Block Sender is a Roam Research extension that automates the creation of block r
 
 ## 🎬 Example
 
-<img src="LINK_TO_VIDEO" max-width="600"></img>
+<video src="https://github-production-user-asset-6210df.s3.amazonaws.com/4028391/373327914-fe400195-8473-4b08-a58e-59352670e0a2.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20241003%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241003T160318Z&X-Amz-Expires=300&X-Amz-Signature=fbfedc3347bce1d9e1f058fab938622dfb1b0cff110f6f8c9c9d8f6299492780&X-Amz-SignedHeaders=host" max-width="600"></video>
 
 ## ✨ How It Works
 
