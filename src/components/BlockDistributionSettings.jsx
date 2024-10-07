@@ -7,7 +7,7 @@ import { getExtensionAPISetting } from "../utils.js";
 const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch }) => {
   const [rules, setRules] = useState([]);
   const [newRule, setNewRule] = useState({
-    destType: "blockSearch",
+    destType: "page",
   });
 
   const toaster = Toaster.create({
@@ -68,7 +68,7 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
         destString,
       };
 
-      console.log(`[addRule] Adding new rule: ${JSON.stringify(ruleWithUids)}`);
+      // console.log(`[addRule] Adding new rule: ${JSON.stringify(ruleWithUids)}`);
       const updatedRules = [...rules, ruleWithUids];
       setRules(updatedRules);
       await extensionAPI.settings.set("blockDistributionRules", updatedRules);
@@ -78,15 +78,12 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
       setNewRule({
         destType: "blockSearch",
       });
-
-      // toaster.show({ message: "Rule added successfully", intent: "success" });
     }
   };
 
   const deleteRule = async (index) => {
     const updatedRules = [...rules];
     const removedRule = updatedRules.splice(index, 1)[0];
-    console.log(`[deleteRule] Deleting rule: ${JSON.stringify(removedRule)}`);
     setRules(updatedRules);
     await extensionAPI.settings.set("blockDistributionRules", updatedRules);
     
@@ -100,7 +97,6 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
         "blockDistributionRules",
         []
       );
-      console.log(`[fetchRules] Fetched ${initialRules.length} rules`);
       setRules(initialRules);
     };
 
@@ -115,7 +111,6 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
   }, []);
 
   const handleDestValueChange = useCallback((value, uid) => {
-    console.log("BlockInput value:", value, "UID:", uid);
     setNewRule((prevNewRule) => ({
       ...prevNewRule,
       destValue: value,
@@ -152,28 +147,9 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
 
   return (
     <div>
-      <div>
-        {rules.map((rule, index) => (
-          <div
-            key={index}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: "1rem",
-            }}
-          >
-            <div>
-              <strong>Tag:</strong> {rule.tag}  {/*(UID: {rule.tagUid || "N/A"}) */}
-              <br />
-              <strong>Destination:</strong>{" "}
-              {rule.destType === "blockSearch" ? "Block" : rule.destType === "page" ? "Page" : "Block UID"} - {rule.destString}{/*  (UID: {rule.destUid || "N/A"}) */}
-            </div>
-            <Button icon="trash" minimal onClick={() => deleteRule(index)} />
-          </div>
-        ))}
-      </div>
-        <hr></hr>
-      <Divider />
+      
+       
+      
 
       <div>
         <FormGroup label={<strong>Tag To Watch</strong>} labelFor="tag">
@@ -246,6 +222,28 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
         <Button onClick={addRule} intent="primary">
           Add Rule
         </Button>
+      </div>
+      <hr></hr>
+      <Divider />
+      <div>
+        {rules.map((rule, index) => (
+          <div
+            key={index}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "1rem",
+            }}
+          >
+            <div>
+              <strong>Tag:</strong> {rule.tag}  {/*(UID: {rule.tagUid || "N/A"}) */}
+              <br />
+              <strong>Destination:</strong>{" "}
+              {rule.destType === "blockSearch" ? "Block" : rule.destType === "page" ? "Page" : "Block UID"} - {rule.destString}{/*  (UID: {rule.destUid || "N/A"}) */}
+            </div>
+            <Button icon="trash" minimal onClick={() => deleteRule(index)} />
+          </div>
+        ))}
       </div>
     </div>
   );

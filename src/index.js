@@ -6,11 +6,12 @@ import {
   compareObjects } from "./utils";
 
 let pullWatches = {};
+const extensionName = pkg.name
+  .split('-') // Split the string at each dash
+  .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize first letter of each word
+  .join(' '); // Join the words with spaces
 
 const handlePullWatch = (rule) => async (before, after) => {
-  console.log(`[PullWatch] Triggered for ${rule.tag}:`, before, after);
-  console.log("rule", rule);
-
   if (!before || !after) {
     console.error('[PullWatch] Invalid before or after data:', { before, after });
     return;
@@ -19,7 +20,6 @@ const handlePullWatch = (rule) => async (before, after) => {
   let changes;
   try {
     changes = compareObjects(before, after);
-    console.log("Changes:", changes);
   } catch (error) {
     console.error('[PullWatch] Error in compareObjects:', error);
     return;
@@ -49,13 +49,10 @@ const handlePullWatch = (rule) => async (before, after) => {
           string: blockString,
         },
       });
-
-      console.log(`[PullWatch] Successfully processed new block: ${newBlock[':block/uid']}`);
     } catch (error) {
       console.error('[PullWatch] Error in processing new block:', error);
     }
   } else {
-    console.log('[PullWatch] No new blocks added, no action taken');
   }
 };
 
@@ -79,11 +76,11 @@ async function onload({ extensionAPI }) {
     BlockDistributionSettings({ extensionAPI, addPullWatch, removePullWatch });
 
   extensionAPI.settings.panel.create({
-    tabTitle: `${pkg.name}`,
+    tabTitle: `${extensionName}`,
     settings: [
       {
         id: "block-distribution-settings",
-        name: "Block Distribution Settings",
+        name: "Block Distributer Settings",
         description: "Manage rules for automatic block distribution",
         action: { type: "reactComponent", component: wrappedBlockDistribution },
       },
@@ -92,8 +89,6 @@ async function onload({ extensionAPI }) {
 
   // Load initial rules and set up pull watches
   const existingRules = await extensionAPI.settings.get("blockDistributionRules") || [];
-
-  console.log("existingRules",existingRules);
   
   for (const rule of existingRules) {
     await addPullWatch(rule);
