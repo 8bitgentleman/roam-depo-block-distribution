@@ -3,7 +3,8 @@ import BlockDistributionSettings from "./components/BlockDistributionSettings";
 import { 
   generatePullWatchParams,
   removeTagFromBlock,
-  compareObjects } from "./utils";
+  compareObjects,
+  createBlockReference } from "./utils";
 
 let pullWatches = {};
 const extensionName = pkg.name
@@ -35,10 +36,11 @@ const handlePullWatch = (rule) => async (before, after) => {
     }
 
     try {
-      // Create the new block
+      // Create the new block with the specified reference type
+      const referenceString = createBlockReference(newBlock[':block/uid'], rule.refType);
       await window.roamAlphaAPI.createBlock({
         location: { "parent-uid": rule.destUid, order: 'last' },
-        block: { string: `((${newBlock[':block/uid']}))` },
+        block: { string: referenceString },
       });
 
       // Update the original block to remove the tag

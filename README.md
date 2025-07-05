@@ -7,7 +7,7 @@ Block Sender is a Roam Research extension that automates the creation of block r
 ## ✨ How It Works
 
 1. When a block is tagged with a watched tag, Block Sender detects the change
-2. A block reference is created at the specified destination
+2. A block reference is created at the specified destination using your chosen reference type
 3. The original tag is removed from the source block
 4. The original block remains in its original location
 
@@ -18,6 +18,7 @@ Block Sender is a Roam Research extension that automates the creation of block r
 3. Create rules by specifying:
    - A tag to watch
    - A destination type (block, page, or block UID)
+   - A reference type (block reference, embed, embed-path, or embed-children)
    - The specific destination
 4. Block Sender will now monitor your graph and create block references according to your rules
 
@@ -25,5 +26,13 @@ Block Sender is a Roam Research extension that automates the creation of block r
 
 - Enhance information connectivity in your Roam graph
 - Automate cross-referencing and reduce manual block referencing
+- Choose between block references or embed types for richer content display
 - Maintain clean, tag-free blocks while creating new connections
 - Preserve original context while distributing information
+
+## 🔧 Reference Types
+
+**Block Reference** (default): `((block_ref))` - Creates a simple block reference
+**Embed**: `{{[[embed]]: ((UID))}}` - Embeds the full block content
+**Embed Path**: `{{[[embed-path]]: ((UID))}}` - Embeds with breadcrumb path
+**Embed Children**: `{{[[embed-children]]: ((UID))}}` - Embeds block and its children

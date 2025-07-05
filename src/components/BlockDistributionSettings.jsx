@@ -8,6 +8,7 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
   const [rules, setRules] = useState([]);
   const [newRule, setNewRule] = useState({
     destType: "page",
+    refType: "block_ref",
   });
 
   const toaster = Toaster.create({
@@ -72,11 +73,12 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
       const updatedRules = [...rules, ruleWithUids];
       setRules(updatedRules);
       await extensionAPI.settings.set("blockDistributionRules", updatedRules);
-      
+
       await addPullWatch(ruleWithUids);
-      
+
       setNewRule({
-        destType: "blockSearch",
+        destType: "page",
+        refType: "block_ref",
       });
     }
   };
@@ -86,7 +88,7 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
     const removedRule = updatedRules.splice(index, 1)[0];
     setRules(updatedRules);
     await extensionAPI.settings.set("blockDistributionRules", updatedRules);
-    
+
     await removePullWatch(removedRule);
   };
 
@@ -102,7 +104,7 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
 
     fetchRules();
   }, [extensionAPI]);
-  
+
   const handleTagChange = useCallback((tag) => {
     setNewRule((prevNewRule) => ({
       ...prevNewRule,
@@ -145,11 +147,18 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
     { label: "Block UID", value: "blockUid" },
   ];
 
+  const referenceTypes = [
+    { label: "Block Reference", value: "block_ref", description: "((block_ref))" },
+    { label: "Embed", value: "embed", description: "{{[[embed]]: ((UID))}}" },
+    { label: "Embed Path", value: "embed_path", description: "{{[[embed-path]]: ((UID))}}" },
+    { label: "Embed Children", value: "embed_children", description: "{{[[embed-children]]: ((UID))}}" },
+  ];
+
   return (
     <div>
-      
-       
-      
+
+
+
 
       <div>
         <FormGroup label={<strong>Tag To Watch</strong>} labelFor="tag">
@@ -192,32 +201,59 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
           </Popover>
         </FormGroup>
 
+        <FormGroup label={<strong>Reference Type</strong>} labelFor="refType" >
+          <Popover
+            content={
+              <Menu>
+                {referenceTypes.map((item) => (
+                  <MenuItem
+                    key={item.value}
+                    text={<div><strong>{item.label}</strong><br /><small>{item.description}</small></div>}
+                    onClick={() =>
+                      setNewRule((prevNewRule) => ({
+                        ...prevNewRule,
+                        refType: item.value,
+                      }))
+                    }
+                  />
+                ))}
+              </Menu>
+            }
+            interactionKind={PopoverInteractionKind.CLICK}
+          >
+            <Button
+              text={referenceTypes.find(t => t.value === newRule.refType)?.label || "Block Reference"}
+              rightIcon="double-caret-vertical"
+            />
+          </Popover>
+        </FormGroup>
+
         <FormGroup label={<strong>Destination Value</strong>} labelFor="destValue">
-        {newRule.destType === "blockSearch" && (
-          <BlockInput
-            value={newRule.destValue || ""}
-            setValue={handleDestValueChange}
-          />
-        )}
-        {newRule.destType === "page" && (
-          <PageInput
-            id="destValue"
-            placeholder="Enter Page Name"
-            value={newRule.destValue || ""}
-            setValue={handlePageValueChange}
-            showButton={false}
-            multiline={false}
-          />
-        )}
-        {newRule.destType === "blockUid" && (
-          <InputGroup
-            id="destValue"
-            placeholder="Enter Block UID"
-            value={newRule.destValue || ""}
-            onChange={handleBlockUidChange}
-          />
-        )}
-      </FormGroup>
+          {newRule.destType === "blockSearch" && (
+            <BlockInput
+              value={newRule.destValue || ""}
+              setValue={handleDestValueChange}
+            />
+          )}
+          {newRule.destType === "page" && (
+            <PageInput
+              id="destValue"
+              placeholder="Enter Page Name"
+              value={newRule.destValue || ""}
+              setValue={handlePageValueChange}
+              showButton={false}
+              multiline={false}
+            />
+          )}
+          {newRule.destType === "blockUid" && (
+            <InputGroup
+              id="destValue"
+              placeholder="Enter Block UID"
+              value={newRule.destValue || ""}
+              onChange={handleBlockUidChange}
+            />
+          )}
+        </FormGroup>
 
         <Button onClick={addRule} intent="primary">
           Add Rule
@@ -240,6 +276,9 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
               <br />
               <strong>Destination:</strong>{" "}
               {rule.destType === "blockSearch" ? "Block" : rule.destType === "page" ? "Page" : "Block UID"} - {rule.destString}{/*  (UID: {rule.destUid || "N/A"}) */}
+              <br />
+              <strong>Reference Type:</strong>{" "}
+              {referenceTypes.find(t => t.value === (rule.refType || "block_ref"))?.label || "Block Reference"}
             </div>
             <Button icon="trash" minimal onClick={() => deleteRule(index)} />
           </div>

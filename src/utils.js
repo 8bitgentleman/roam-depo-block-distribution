@@ -34,3 +34,20 @@ export function compareObjects(before, after) {
     modified: [] // Assuming no modifications in this case
   };
 }
+
+export function createBlockReference(blockUid, refType = "block_ref") {
+  // Default to block_ref for backwards compatibility
+  const referenceType = refType || "block_ref";
+  
+  switch (referenceType) {
+    case "embed":
+      return `{{[[embed]]: ((${blockUid}))}}`;
+    case "embed_path":
+      return `{{[[embed-path]]: ((${blockUid}))}}`;
+    case "embed_children":
+      return `{{[[embed-children]]: ((${blockUid}))}}`;
+    case "block_ref":
+    default:
+      return `((${blockUid}))`;
+  }
+}

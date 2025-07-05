@@ -1,6 +1,6 @@
 {
   "name": "block-distributer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Roam Research Plugin",
   "main": "index.js",
   "scripts": {
