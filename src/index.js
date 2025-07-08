@@ -4,7 +4,8 @@ import {
   generatePullWatchParams,
   removeTagFromBlock,
   compareObjects,
-  createBlockReference } from "./utils";
+  createBlockReference,
+  moveBlockAndCreateReference } from "./utils";
 
 let pullWatches = {};
 const extensionName = pkg.name
@@ -36,21 +37,53 @@ const handlePullWatch = (rule) => async (before, after) => {
     }
 
     try {
-      // Create the new block with the specified reference type
-      const referenceString = createBlockReference(newBlock[':block/uid'], rule.refType);
-      await window.roamAlphaAPI.createBlock({
-        location: { "parent-uid": rule.destUid, order: 'last' },
-        block: { string: referenceString },
-      });
+      if (rule.refType === "move_block") {
+        // Move block to destination and create reference at original location
+        const moveSuccess = await moveBlockAndCreateReference(newBlock[':block/uid'], rule);
+        if (moveSuccess) {
+          // Remove tag from moved block (now at destination)
+          let blockString = removeTagFromBlock(newBlock[':block/string'], rule.tag);
+          await window.roamAlphaAPI.updateBlock({
+            block: {
+              uid: newBlock[':block/uid'],
+              string: blockString,
+            },
+          });
+        } else {
+          console.error('[PullWatch] Failed to move block, falling back to reference creation');
+          // Fall back to creating reference if move fails
+          const referenceString = createBlockReference(newBlock[':block/uid'], "block_ref");
+          await window.roamAlphaAPI.createBlock({
+            location: { "parent-uid": rule.destUid, order: 'last' },
+            block: { string: referenceString },
+          });
+          
+          // Update the original block to remove the tag
+          let blockString = removeTagFromBlock(newBlock[':block/string'], rule.tag);
+          await window.roamAlphaAPI.updateBlock({
+            block: {
+              uid: newBlock[':block/uid'],
+              string: blockString,
+            },
+          });
+        }
+      } else {
+        // Original logic for creating references
+        const referenceString = createBlockReference(newBlock[':block/uid'], rule.refType);
+        await window.roamAlphaAPI.createBlock({
+          location: { "parent-uid": rule.destUid, order: 'last' },
+          block: { string: referenceString },
+        });
 
-      // Update the original block to remove the tag
-      let blockString = removeTagFromBlock(newBlock[':block/string'], rule.tag);
-      await window.roamAlphaAPI.updateBlock({
-        block: {
-          uid: newBlock[':block/uid'],
-          string: blockString,
-        },
-      });
+        // Update the original block to remove the tag
+        let blockString = removeTagFromBlock(newBlock[':block/string'], rule.tag);
+        await window.roamAlphaAPI.updateBlock({
+          block: {
+            uid: newBlock[':block/uid'],
+            string: blockString,
+          },
+        });
+      }
     } catch (error) {
       console.error('[PullWatch] Error in processing new block:', error);
     }

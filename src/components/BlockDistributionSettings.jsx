@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Button, Divider, FormGroup, Menu, MenuItem, Popover, PopoverInteractionKind, Toaster, Position, InputGroup } from "@blueprintjs/core";
+import { Button, Divider, FormGroup, Menu, MenuItem, Popover, PopoverInteractionKind, Toaster, Position, InputGroup, Checkbox } from "@blueprintjs/core";
 import PageInput from "roamjs-components/components/PageInput";
 import BlockInput from "roamjs-components/components/BlockInput";
 import { getExtensionAPISetting } from "../utils.js";
@@ -9,6 +9,7 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
   const [newRule, setNewRule] = useState({
     destType: "page",
     refType: "block_ref",
+    leaveReference: true,
   });
 
   const toaster = Toaster.create({
@@ -79,6 +80,7 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
       setNewRule({
         destType: "page",
         refType: "block_ref",
+        leaveReference: true,
       });
     }
   };
@@ -152,6 +154,7 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
     { label: "Embed", value: "embed", description: "{{[[embed]]: ((UID))}}" },
     { label: "Embed Path", value: "embed_path", description: "{{[[embed-path]]: ((UID))}}" },
     { label: "Embed Children", value: "embed_children", description: "{{[[embed-children]]: ((UID))}}" },
+    { label: "Move Block", value: "move_block", description: "Move original to destination" },
   ];
 
   return (
@@ -228,6 +231,21 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
           </Popover>
         </FormGroup>
 
+        {newRule.refType === "move_block" && (
+          <FormGroup>
+            <Checkbox
+              checked={newRule.leaveReference}
+              onChange={(event) =>
+                setNewRule((prevNewRule) => ({
+                  ...prevNewRule,
+                  leaveReference: event.target.checked,
+                }))
+              }
+              label="Leave reference at original location"
+            />
+          </FormGroup>
+        )}
+
         <FormGroup label={<strong>Destination Value</strong>} labelFor="destValue">
           {newRule.destType === "blockSearch" && (
             <BlockInput
@@ -279,6 +297,11 @@ const BlockDistributionSettings = ({ extensionAPI, addPullWatch, removePullWatch
               <br />
               <strong>Reference Type:</strong>{" "}
               {referenceTypes.find(t => t.value === (rule.refType || "block_ref"))?.label || "Block Reference"}
+              {rule.refType === "move_block" && (
+                <span style={{ marginLeft: "8px", fontSize: "0.85em", color: "#666" }}>
+                  {rule.leaveReference !== false ? "(with reference)" : "(no reference)"}
+                </span>
+              )}
             </div>
             <Button icon="trash" minimal onClick={() => deleteRule(index)} />
           </div>
