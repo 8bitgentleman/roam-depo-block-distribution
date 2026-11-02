@@ -4,7 +4,9 @@ export function getExtensionAPISetting(extensionAPI, key, defaultValue) {
 }
 
 export const generatePullWatchParams = (rule) => {
-  const pullPattern = "[:block/string :block/uid {:block/_refs ...}]";
+  // Only referencing block uids: pulling strings or recursing makes the watch
+  // scale with the tag's total reference count and stall on heavily-used tags.
+  const pullPattern = "[:block/uid {:block/_refs [:block/uid]}]";
   const entity = `[:node/title "${rule.tag}"]`;
   return { pullPattern, entity };
 };
@@ -25,8 +27,11 @@ export function compareObjects(before, after) {
   const beforeRefs = before[":block/_refs"] || [];
   const afterRefs = after[":block/_refs"] || [];
   
-  const added = afterRefs.filter(a => !beforeRefs.some(b => b && b[":block/uid"] === a[":block/uid"]));
-  const removed = beforeRefs.filter(b => b && !afterRefs.some(a => a[":block/uid"] === b[":block/uid"]));
+  const beforeUids = new Set(beforeRefs.map(b => b?.[":block/uid"]));
+  const afterUids = new Set(afterRefs.map(a => a?.[":block/uid"]));
+
+  const added = afterRefs.filter(a => a && !beforeUids.has(a[":block/uid"]));
+  const removed = beforeRefs.filter(b => b && !afterUids.has(b[":block/uid"]));
   
   return {
     added,

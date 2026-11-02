@@ -36,6 +36,10 @@ const handlePullWatch = (rule) => async (before, after) => {
       return;
     }
 
+    // The watch only carries uids, so fetch the text for just this block
+    const pulled = await window.roamAlphaAPI.data.pull("[:block/string]", [":block/uid", newBlock[':block/uid']]);
+    newBlock[':block/string'] = pulled?.[':block/string'] ?? "";
+
     try {
       if (rule.refType === "move_block") {
         // Move block to destination and create reference at original location
