@@ -6,7 +6,9 @@ export function getExtensionAPISetting(extensionAPI, key, defaultValue) {
 export const generatePullWatchParams = (rule) => {
   // Only referencing block uids: pulling strings or recursing makes the watch
   // scale with the tag's total reference count and stall on heavily-used tags.
-  const pullPattern = "[:block/uid {:block/_refs [:block/uid]}]";
+  // `limit nil` lifts Datascript's default cap of 1000 on to-many attributes;
+  // without it, new blocks on tags with 1000+ refs never show up in the diff.
+  const pullPattern = "[:block/uid {(limit :block/_refs nil) [:block/uid]}]";
   const entity = `[:node/title "${rule.tag}"]`;
   return { pullPattern, entity };
 };
